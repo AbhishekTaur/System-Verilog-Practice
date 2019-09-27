@@ -1,0 +1,41 @@
+/******************************************************************************
+ * Test program 3 for the VeriRisc CPU system, Verilog Training Course.
+ * 
+ *
+ * This is an actual program that calculates the Fibonacci number sequence
+ * from 0 to 144.  The Fibonacci number sequence is a series of numbers in
+ * which each number in the sequence is the sum of the preceding two numbers
+ * (i.e.:  0, 1, 1, 2, 3, 5, 8, 13 ...).  This number sequence is often used
+ * in financial analysis, and can also be found in the patterns of pineapple
+ * shells and some flower petals.
+ *
+ * WARNING: Do not run this program before the CPUtest1 and CPUtest2 diagnostic
+ *          programs have completed successfully. Those who do are asking for
+            endless heartache.
+ *****************************************************************************/
+
+//opcode_operand  // addr                     assembly code
+//--------------  // ----  ----------------------------------------------------
+    111_00011     //  00           JMP LOOP   //jump to the address of LOOP
+@03 101_11011     //  03   LOOP:   LDA FN2    //load value in FN2 into accum
+    110_11100     //  04           STO TEMP   //store accumulator in TEMP
+    010_11010     //  05           ADD FN1    //add value in FN1 to accumulator
+    110_11011     //  06           STO FN2    //store result in FN2
+    101_11100     //  07           LDA TEMP   //load TEMP into the accumulator
+    110_11010     //  08           STO FN1    //store accumulator in FN1
+    100_11101     //  09           XOR LIMIT  //compare accumulator to LIMIT
+    001_00000     //  0A           SKZ        //if accum = 0, skip to DONE
+    111_00011     //  0B           JMP LOOP   //jump to address of LOOP
+    000_00000     //  0C   DONE:   HLT        //end of program
+    101_11111     //  0D   AGAIN:  LDA ONE
+    110_11010     //  0E           STO FN1
+    101_11110     //  0F           LDA ZERO
+    110_11011     //  10           STO FN2
+    111_00011     //  11           JMP LOOP   //jump to address of LOOP
+
+@1A 00000001      //  1A   FN1:               //data storage for 1st Fib. No.
+    00000000      //  1B   FN2:               //data storage for 2nd Fib. No.
+    00000000      //  1C   TEMP:              //temproray data storage
+    10010000      //  1D   LIMIT:             //max value to calculate 144(dec)
+    00000000      //  1E   ZERO:              //constant 0(decimal)
+    00000001      //  1F   ONE:               //constant 1(decimal)

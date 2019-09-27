@@ -1,0 +1,41 @@
+/******************************************************************************
+ * Test program 2 for the VeriRisc CPU system, Verilog Training Course.
+ * 
+ *
+ * This diagnostic program tests the advanced instruction set of the VeriRisc
+ * system.  If the system executes each instruction correctly, then it should
+ * halt when the HLT instruction at address 10(hex) is executed.
+ *
+ * If the system halts at any other location, then an instruction did not
+ * execute properly.  Refer to the comments in this file to see which
+ * instruction failed.
+ *
+ * WARNING: The CPUtest1 diagnostic program should be completed successfully
+ *          before this test is run.
+ *****************************************************************************/
+
+//opcode_operand  // addr                   assembly code
+//--------------  // ----  -----------------------------------------------
+@00 101_11011     //  00   BEGIN:  LDA DATA_2
+    011_11100     //  01           AND DATA_3 
+    100_11011     //  02           XOR DATA_2
+    001_00000     //  03           SKZ
+    000_00000     //  04           HLT         //AND doesn't work
+    010_11010     //  05           ADD DATA_1
+    001_00000     //  06           SKZ
+    111_01001     //  07           JMP ADD_OK
+    000_00000     //  08           HLT         //ADD doesn't work
+    100_11100     //  09           XOR DATA_3
+    010_11010     //  0A           ADD DATA_1  //FF plus 1 makes -1
+    110_11101     //  0B           STO TEMP
+    101_11010     //  0C           LDA DATA_1
+    010_11101     //  0D           ADD TEMP    //-1 plus 1 should make zero
+    001_00000     //  0E           SKZ
+    000_00000     //  0F           HLT         //ADD Doesn't work
+    000_00000     //  10   END:    HLT         //CONGRATULATIONS - TEST2 PASSED!
+    111_00000     //  11           JMP BEGIN   //run test again
+
+@1A 00000001      //  1A   DATA_1:             //constant  1(hex)
+    10101010      //  1B   DATA_2:             //constant AA(hex)
+    11111111      //  1C   DATA_3:             //constant FF(hex)
+    00000000      //  1D   TEMP:

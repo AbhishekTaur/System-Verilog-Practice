@@ -1,0 +1,193 @@
+#!/bin/csh -f
+#
+###############################################################
+#
+#                          Copyright 1996-2009
+#
+#               CADENCE  DESIGN  SYSTEMS  INCORPORATED
+#
+# The copyright notice appearing above is included to provide statutory
+# protection in the event of unauthorized or unintentional public disclosure
+# without written consent of an officer of Cadence Design Systems Incorporated.
+#
+#######################################################################
+#
+# Run this script to verify course database and software installation.
+# You are prompted to run the script graphically or nongraphically.
+#
+  set COURSE="SystemVerilog Design and Verification"
+  set DATE = `date`
+  echo ""
+  echo "******************************************************************"
+  echo "TEST: Installation Test for $COURSE"
+  echo "******************************************************************"
+  echo ""
+  echo "Test started on" $DATE
+#
+########################################################################
+#
+# Find the name of the testscript and cd into the directory
+# containing the testscript. DO NOT make changes to this section.
+#
+  set thisFile=".testscript"
+  set installDir=`echo $0 | sed s/$thisFile//`
+  if("${installDir}" != "") cd $installDir
+#
+########################################################################
+#
+# Check to see if user wants to run the test results again without
+# rerunning the test. This is for testscript debugging purposes.
+#
+  set mailuser=""
+  if("${1}" == "-t")  then
+    if (-d .test ) then
+      echo ""
+      echo "Verifying the test results" >> .test/results
+      echo "Test started" $DATE         >> .test/results
+      echo "" >> .test/results
+      goto TESTPHASE
+    else
+      echo ""
+      echo "There are no results to test - the .test directory is not present."
+      echo ""
+      echo "You must run the test script at least once without the"
+      echo "-t option before running it again with the -t option."
+      exit 1
+    endif
+  endif
+#
+########################################################################
+# Make a virgin .test dir
+########################################################################
+#
+  rm -fr .test
+  cp -r .testMaster .test
+#
+########################################################################
+# Run test graphically or nongraphically?
+########################################################################
+#
+  set ARGUMENTS="NONE"
+
+  set GRAPH="-nograph"
+  if ("${1}" == "-graph")  then
+    echo "The current testscript runs only in nongraphic mode."
+    set ARGUMENTS="SOME"
+    set GRAPH="-graph"
+  endif
+
+  if ("${1}" == "-nograph")  then
+    set ARGUMENTS="SOME"
+    set GRAPH="-nograph"
+  endif
+
+  # Send Mail to Course Database installer when running nongraphically
+  if ("${GRAPH}" == "-nograph")  then
+    if ("${2}" != "")  set mailuser=$2
+  endif
+
+  if ("${ARGUMENTS}" == "NONE") then
+   set ans = ""
+   set GRAPH = "-nograph"
+#  echo -n "Run Graphically[g] or Nongraphically[n] [n]>"
+#  set ans = $<
+   if ( "$ans" == "" ) then
+    set GRAPH = "-nograph"
+   else if ( "$ans" == "n" ) then
+    set GRAPH = "-nograph"
+   else if ( "$ans" == "g" ) then
+    set GRAPH = "-graph"
+   endif
+  endif
+#
+########################################################################
+# Set up results file.
+########################################################################
+#
+  touch .test/results
+  echo "Running the database installation test script for:"  >> .test/results
+  echo "$COURSE"                                             >> .test/results
+  echo "Test started" $DATE                                  >> .test/results
+#
+########################################################################
+# Is the software installed?
+########################################################################
+#
+  ncroot >& /dev/null
+  if ($status != 0) then
+    echo ""
+    echo 'The command "ncroot" returns with error status.'
+    echo ""
+    echo "Please read the course installation instructions and install the"
+    echo "course and the dotfiles correctly before running the test script."
+    exit 1
+  endif
+#
+########################################################################
+# Execute the test
+########################################################################
+#
+  cd .test
+
+  echo ""
+
+  irun test.sv -q >& /dev/null
+
+ cd ..
+
+#
+########################################################################
+# Verify the test results
+########################################################################
+#
+TESTPHASE:
+#
+
+  echo ""
+
+  grep "TEST PASSED" .test/irun.log >& /dev/null
+  if ($status == 0) then
+    echo "TEST PASSED" >> .test/results
+    echo "TEST PASSED"
+  else
+    echo "TEST FAILED" >> .test/results
+    echo "TEST FAILED"
+  endif
+
+#
+######################################################################
+# Generic test results report.
+######################################################################
+#
+  echo ""
+  set RESULTS = `grep FAIL .test/results`
+  if ("${RESULTS}" != "") then
+   echo ""                                                     >> .test/results
+   echo ""                                                     >> .test/results
+   echo " *******************************************"         >> .test/results
+   echo " * Suggestions for Corrections of FAILURES *"         >> .test/results
+   echo " *******************************************"         >> .test/results
+   echo ""                                                     >> .test/results
+   echo "1. Read the Course Installation Guide and verify"     >> .test/results
+   echo "   you followed the installation steps correctly."    >> .test/results
+   echo "2. Check the README file for any course specific"     >> .test/results
+   echo "   setup requirements."                               >> .test/results
+   echo "3. Check the Software Products Required section"      >> .test/results
+   echo "   of the README file for a list of products that"    >> .test/results
+   echo "   are used in this course."                          >> .test/results
+   echo "FAIL: Installation Test for $COURSE"
+   echo "For details execute: cat .test/results"
+   echo "Subject: FAIL: Installation Test for $COURSE on `date`">.test/installResults
+  else
+   echo "PASS: Installation Test for $COURSE"
+   echo "Subject: PASS: Installation Test for $COURSE on `date`">.test/installResults
+  endif
+  if ("${mailuser}" != "") then
+   mail $mailuser < .test/installResults
+  endif
+#
+###################################################################
+# Include custom cleanup here.
+###################################################################
+#
+  exit

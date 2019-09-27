@@ -1,0 +1,10 @@
+  set filec
+
+  stty erase ^h
+
+  set IUSHOME = /cds/INCISIV111
+
+  set path = ( ${IUSHOME}/tools/bin ${IUSHOME}/tools/systemc/gcc/install/bin $path )
+
+  setenv LD_LIBRARY_PATH .:${IUSHOME}/tools/lib:${IUSHOME}/tools/systemc/gcc/install/lib:${IUSHOME}/tools/tbsc/lib/gnu
+
