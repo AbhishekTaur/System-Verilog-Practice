@@ -41,10 +41,10 @@ initial
     $display("Clear Memory Test");
 // SYSTEMVERILOG: enhanced for loop
     for (int i = 0; i< 32; i++)
-       write_mem (i, 0, debug);
+       mem_inf.write_mem (i, 0, debug);
     for (int i = 0; i<32; i++)
       begin 
-       read_mem (i, rdata, debug);
+       mem_inf.read_mem (i, rdata, debug);
        // check each memory location for data = 'h00
        error_status = checkit (i, rdata, 8'h00);
       end
@@ -54,10 +54,10 @@ initial
     $display("Data = Address Test");
 // SYSTEMVERILOG: enhanced for loop
     for (int i = 0; i< 32; i++)
-       write_mem (i, i, debug);
+       mem_inf.write_mem (i, i, debug);
     for (int i = 0; i<32; i++)
       begin
-       read_mem (i, rdata, debug);
+       mem_inf.read_mem (i, rdata, debug);
        // check each memory location for data = address
        error_status = checkit (i, rdata, i);
       end
@@ -66,32 +66,6 @@ initial
 
     $finish;
   end
-
-// SYSTEMVERILOG: default task input argument values
-task write_mem (input [4:0] waddr, input [7:0] wdata, input debug = 0);
-  @(negedge mem_inf.clk);
-  mem_inf.write <= 1;
-  mem_inf.read  <= 0;
-  mem_inf.addr  <= waddr;
-  mem_inf.data_in  <= wdata;
-  @(negedge mem_inf.clk);
-  mem_inf.write <= 0;
-  if (debug == 1)
-    $display("Write - Address:%d  Data:%h", waddr, wdata);
-endtask
-
-// SYSTEMVERILOG: default task input argument values
-task read_mem (input [4:0] raddr, output [7:0] rdata, input debug = 0);
-   @(negedge mem_inf.clk);
-   mem_inf.write <= 0;
-   mem_inf.read  <= 1;
-   mem_inf.addr  <= raddr;
-   @(negedge mem_inf.clk);
-   mem_inf.read <= 0;
-   rdata = mem_inf.data_out;
-   if (debug == 1) 
-     $display("Read  - Address:%d  Data:%h", raddr, rdata);
-endtask
 
 function int checkit (input [4:0] address,
                       input [7:0] actual, expected);
