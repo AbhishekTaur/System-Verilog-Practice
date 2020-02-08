@@ -12,7 +12,7 @@
 
 module counterclass;
 
-	class counter;
+	virtual class counter;
 		int count;
 		int max;
 		int min;
@@ -30,6 +30,10 @@ module counterclass;
 		function int getcount();
 			return count;
 		endfunction: getcount
+
+		virtual function void next();
+			$display("Inside the counter next method");
+		endfunction : next
 
 		function void check_limit(int num1, int num2);
 			if(num1 >= num2) begin
@@ -68,13 +72,13 @@ module counterclass;
 
 		function void next();
 			if(count < max) begin
-				count = count + 1;
+				count++;
 			end
 			else begin
 				count = min;
 				carry = 1;
 			end
-			$display("Upcounter value: %d", count);
+			$display("Upcounter value: %d", this.count);
 		endfunction: next
 
 		static function int getUpInstance();
@@ -155,29 +159,22 @@ module counterclass;
 
 	endclass : timer
 
-	counter base = new(500, 400, 600);
-	upcounter upcount = new(200, 400, 600);
-	downcounter downcount = new(50, 100, 300);
-	timer time_now= new(0,0,59);
+	counter base;
+	upcounter upcount = new(500, 400, 600);
+	upcounter upcount_cast = new(402, 300, 500);
+	// downcounter downcount = new(50, 100, 300);
+	// timer time_now= new(0,0,59);
 
 	initial begin
-		
-		base.load(100);
-		$display("count = %d", base.getcount());
 
-		
-		upcount.next();
-		downcount.next();
-		upcount.load(600);
-		upcount.next();
-		upcount.load(599);
-		upcount.next();
-		$display("upcounter instances: %d", upcounter::getUpInstance());
-		$display("downcounter instances: %d", downcount.getDownInstance());
-		time_now.next();
-		time_now.load(0,59,59);
-		time_now.next();
+		base = upcount;
+		base.next();
 
+		if(!$cast(upcount_cast, base))
+			$display("Something went wrong while casting");
+		else
+			upcount_cast.next();
+		
 		$finish;
 	end
 endmodule
