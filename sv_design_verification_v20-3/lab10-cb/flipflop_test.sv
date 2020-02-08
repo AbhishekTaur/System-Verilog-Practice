@@ -28,8 +28,25 @@ always
 
 flipflop DUV(.*);
 
-<add clocking block>
+default clocking cb @(posedge clk);
+	input qout;
+	output qin, reset;
 
-<add stimulus to drive clocking block>
+	default input #1step output #4;
+
+endclocking
+
+initial begin
+	@(cb);
+	cb.qin <= '0;
+	cb.reset <= 0;
+	##2 cb.reset <=1;
+	##3 cb.reset <= 0;
+	for(int i=0; i < 8; i++) begin
+		##1 cb.qin <= i;
+	end
+	##3;
+	$finish;
+end
 
 endmodule
