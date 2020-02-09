@@ -24,10 +24,10 @@ timeprecision 100ps;
 
 class memclass;
   randc bit [4:0] addr;
-  randc bit [7:0] data;
+  rand bit [7:0] data;
 
   constraint c1 {
-    data inside {[8'h41:8'h5a], [8'h61:8'h7a]};
+    data dist {[8'h41:8'h5a]:=4, [8'h61:8'h7a]:=1};
   }
 
   function new(bit [4:0] addr, bit [7:0] data);
