@@ -22,17 +22,25 @@ module mem_test (
 timeunit 1ns;
 timeprecision 100ps;
 
+typedef enum bit[1:0] {ASCII, UPPER, LOWER, PROB} c_value;
+
 class memclass;
   randc bit [4:0] addr;
   rand bit [7:0] data;
 
-  constraint c1 {
-    data dist {[8'h41:8'h5a]:=4, [8'h61:8'h7a]:=1};
-  }
+  c_value value;
 
-  function new(bit [4:0] addr, bit [7:0] data);
+  constraint c {
+    value == ASCII -> data inside {[8'h20:8'h7F]};
+    value == UPPER -> data inside {[8'h41:8'h5A]};
+    value == LOWER -> data inside {[8'h61:8'h7A]};
+    value == PROB -> data dist {[8'h41:8'h5a]:=4, [8'h61:8'h7a]:=1};
+  }
+  
+  function new(bit [4:0] addr, bit [7:0] data, c_value value = ASCII);
     this.addr = addr;
     this.data = data;
+    this.value = value;
   endfunction : new
 endclass : memclass
 
@@ -40,7 +48,7 @@ endclass : memclass
 bit         debug = 1;
 logic [7:0] rdata;      // stores data read from memory for checking
 logic [7:0] randdata;
-memclass memory = new('0, '0);
+memclass memory = new('0, '0, PROB);
 // Monitor Results
   initial begin
       $timeformat ( -9, 0, " ns", 9 );
